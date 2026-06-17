@@ -1,5 +1,7 @@
 # mariadb-plugin-uuid-time
 
+![mariabd-plugin-uuid-time](logo/uuid_timestamp.png)
+
 MariaDB function plugin that extracts timestamps from UUID values when the
 timestamp is encoded in the UUID. It supports UUID version 1 and UUID version 7.
 
