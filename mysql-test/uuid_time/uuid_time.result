@@ -1,0 +1,49 @@
+#
+# UUID timestamp conversion functions
+#
+INSTALL SONAME 'uuid_time';
+SET @save_time_zone= @@time_zone;
+SET time_zone= 'SYSTEM';
+SET @uuid_v1= '896e34e0-2d0c-11ea-8000-000000000000';
+SET @uuid_v7= '018bcfe5-687b-7000-8000-000000000000';
+SET @uuid_v4= 'f47ac10b-58cc-4372-a567-0e02b2c3d479';
+SELECT uuid_to_unixtime(@uuid_v1) AS v1_unixtime,
+uuid_to_unixtime(@uuid_v7) AS v7_unixtime;
+v1_unixtime	v7_unixtime
+1577934245	1700000000
+SELECT UNIX_TIMESTAMP(uuid_to_timestamp(@uuid_v1)) AS v1_short_unixtime,
+UNIX_TIMESTAMP(uuid_to_timestamp(@uuid_v7)) AS v7_short_unixtime;
+v1_short_unixtime	v7_short_unixtime
+1577934245.678	1700000000.123
+SELECT uuid_to_timestamp(@uuid_v1) REGEXP
+'^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}\\.678$'
+         AS v1_short_format,
+uuid_to_timestamp(@uuid_v7) REGEXP
+'^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}\\.123$'
+         AS v7_short_format;
+v1_short_format	v7_short_format
+1	1
+SELECT uuid_to_timestamp_long(@uuid_v1) LIKE '%2020%' AS v1_long_year,
+uuid_to_timestamp_long(@uuid_v7) LIKE '%2023%' AS v7_long_year,
+uuid_to_timestamp_long(@uuid_v1) IS NOT NULL AS v1_long_not_null,
+uuid_to_timestamp_long(@uuid_v7) IS NOT NULL AS v7_long_not_null;
+v1_long_year	v7_long_year	v1_long_not_null	v7_long_not_null
+1	1	1	1
+SELECT uuid_to_timestamp(NULL) AS null_timestamp,
+uuid_to_timestamp_long(NULL) AS null_timestamp_long,
+uuid_to_unixtime(NULL) AS null_unixtime;
+null_timestamp	null_timestamp_long	null_unixtime
+NULL	NULL	NULL
+SELECT uuid_to_timestamp(@uuid_v4) AS v4_timestamp,
+uuid_to_timestamp_long(@uuid_v4) AS v4_timestamp_long,
+uuid_to_unixtime(@uuid_v4) AS v4_unixtime;
+v4_timestamp	v4_timestamp_long	v4_unixtime
+NULL	NULL	NULL
+SELECT uuid_to_timestamp('not-a-uuid');
+ERROR HY000: uuid_to_timestamp: not a valid UUID
+SELECT uuid_to_timestamp_long('not-a-uuid');
+ERROR HY000: uuid_to_timestamp: not a valid UUID
+SELECT uuid_to_unixtime('not-a-uuid');
+ERROR HY000: uuid_to_unixtime: not a valid UUID
+SET time_zone= @save_time_zone;
+UNINSTALL SONAME 'uuid_time';
