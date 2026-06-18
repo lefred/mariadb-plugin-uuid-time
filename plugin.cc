@@ -72,6 +72,38 @@ protected:
 
 Create_func_uuid_to_unixtime Create_func_uuid_to_unixtime::s_singleton;
 
+class Create_func_uuid_age : public Create_func_arg1
+{
+public:
+  Item *create_1_arg(THD *thd, Item *arg1) override
+  {
+    return new (thd->mem_root) Item_func_uuid_age(thd, arg1);
+  }
+  static Create_func_uuid_age s_singleton;
+
+protected:
+  Create_func_uuid_age() {}
+  ~Create_func_uuid_age() override {}
+};
+
+Create_func_uuid_age Create_func_uuid_age::s_singleton;
+
+class Create_func_uuid_age_long : public Create_func_arg1
+{
+public:
+  Item *create_1_arg(THD *thd, Item *arg1) override
+  {
+    return new (thd->mem_root) Item_func_uuid_age_long(thd, arg1);
+  }
+  static Create_func_uuid_age_long s_singleton;
+
+protected:
+  Create_func_uuid_age_long() {}
+  ~Create_func_uuid_age_long() override {}
+};
+
+Create_func_uuid_age_long Create_func_uuid_age_long::s_singleton;
+
 #define BUILDER(F) &F::s_singleton
 
 static Plugin_function plugin_descriptor_function_uuid_to_timestamp(
@@ -79,7 +111,9 @@ static Plugin_function plugin_descriptor_function_uuid_to_timestamp(
     plugin_descriptor_function_uuid_to_timestamp_long(
         BUILDER(Create_func_uuid_to_timestamp_long)),
     plugin_descriptor_function_uuid_to_unixtime(
-        BUILDER(Create_func_uuid_to_unixtime));
+        BUILDER(Create_func_uuid_to_unixtime)),
+    plugin_descriptor_function_uuid_age(BUILDER(Create_func_uuid_age)),
+    plugin_descriptor_function_uuid_age_long(BUILDER(Create_func_uuid_age_long));
 
 /*************************************************************************/
 
@@ -127,6 +161,40 @@ maria_declare_plugin(type_test){
         "uuid_to_unixtime",                           // plugin name
         "lefred",                                     // plugin author
         "Function UUID_TO_UNIXTIME()",                // the plugin description
+        PLUGIN_LICENSE_GPL, // the plugin license (see include/mysql/plugin.h)
+        0,                  // Pointer to plugin initialization function
+        0,                  // Pointer to plugin deinitialization function
+        0x0100,             // Numeric version 0xAABB means AA.BB version
+        NULL,               // Status variables
+        NULL,               // System variables
+        "1.0",              // String version representation
+        MariaDB_PLUGIN_MATURITY_BETA // Maturity(see include/mysql/plugin.h)*/
+    },
+    {
+        MariaDB_FUNCTION_PLUGIN, // the plugin type (see
+                                 // include/mysql/plugin.h)
+        &plugin_descriptor_function_uuid_age, // pointer to type-specific
+                                             // plugin descriptor
+        "uuid_age",                          // plugin name
+        "lefred",                            // plugin author
+        "Function UUID_AGE()",               // the plugin description
+        PLUGIN_LICENSE_GPL, // the plugin license (see include/mysql/plugin.h)
+        0,                  // Pointer to plugin initialization function
+        0,                  // Pointer to plugin deinitialization function
+        0x0100,             // Numeric version 0xAABB means AA.BB version
+        NULL,               // Status variables
+        NULL,               // System variables
+        "1.0",              // String version representation
+        MariaDB_PLUGIN_MATURITY_BETA // Maturity(see include/mysql/plugin.h)*/
+    },
+    {
+        MariaDB_FUNCTION_PLUGIN, // the plugin type (see
+                                 // include/mysql/plugin.h)
+        &plugin_descriptor_function_uuid_age_long, // pointer to type-specific
+                                                  // plugin descriptor
+        "uuid_age_long",                          // plugin name
+        "lefred",                                 // plugin author
+        "Function UUID_AGE_LONG()",               // the plugin description
         PLUGIN_LICENSE_GPL, // the plugin license (see include/mysql/plugin.h)
         0,                  // Pointer to plugin initialization function
         0,                  // Pointer to plugin deinitialization function

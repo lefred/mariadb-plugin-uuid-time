@@ -111,4 +111,64 @@ public:
   }
 };
 
+class Item_func_uuid_age : public Item_real_func
+{
+public:
+  Item_func_uuid_age(THD *thd, Item *arg1) : Item_real_func(thd, arg1)
+  {
+  }
+
+  Item *shallow_copy(THD *thd) const override
+  {
+    return get_item_copy<Item_func_uuid_age>(thd, this);
+  }
+
+  LEX_CSTRING func_name_cstring() const override
+  {
+    static LEX_CSTRING name= {STRING_WITH_LEN("uuid_age")};
+    return name;
+  }
+
+  double val_real() override;
+  bool fix_length_and_dec(THD *thd) override
+  {
+    decimals= 6;
+    max_length= 26;
+    set_maybe_null();
+    return FALSE;
+  }
+  bool const_item() const override { return false; }
+  table_map used_tables() const override { return RAND_TABLE_BIT; }
+};
+
+class Item_func_uuid_age_long : public Item_str_func
+{
+public:
+  Item_func_uuid_age_long(THD *thd, Item *arg1) : Item_str_func(thd, arg1)
+  {
+  }
+
+  Item *shallow_copy(THD *thd) const override
+  {
+    return get_item_copy<Item_func_uuid_age_long>(thd, this);
+  }
+
+  LEX_CSTRING func_name_cstring() const override
+  {
+    static LEX_CSTRING name= {STRING_WITH_LEN("uuid_age_long")};
+    return name;
+  }
+
+  String *val_str(String *str) override;
+  bool fix_length_and_dec(THD *thd) override
+  {
+    collation.set(DTCollation_numeric());
+    fix_char_length(64);
+    set_maybe_null();
+    return FALSE;
+  }
+  bool const_item() const override { return false; }
+  table_map used_tables() const override { return RAND_TABLE_BIT; }
+};
+
 #endif

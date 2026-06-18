@@ -29,21 +29,43 @@ uuid_to_timestamp_long(@uuid_v1) IS NOT NULL AS v1_long_not_null,
 uuid_to_timestamp_long(@uuid_v7) IS NOT NULL AS v7_long_not_null;
 v1_long_year	v7_long_year	v1_long_not_null	v7_long_not_null
 1	1	1	1
+SELECT uuid_age(@uuid_v1) IS NOT NULL AS v1_age,
+uuid_age(@uuid_v7) IS NOT NULL AS v7_age,
+uuid_age(@uuid_v4) AS v4_age;
+v1_age	v7_age	v4_age
+1	1	NULL
+SELECT uuid_age_long(@uuid_v1) REGEXP
+'^-?[0-9]+y [0-9]+mo [0-9]+d [0-9]+h [0-9]+m [0-9]+\\.[0-9]{3}s$'
+         AS v1_age_long_format,
+uuid_age_long(@uuid_v7) REGEXP
+'^-?[0-9]+y [0-9]+mo [0-9]+d [0-9]+h [0-9]+m [0-9]+\\.[0-9]{3}s$'
+         AS v7_age_long_format,
+uuid_age_long(@uuid_v4) AS v4_age_long;
+v1_age_long_format	v7_age_long_format	v4_age_long
+1	1	NULL
 SELECT uuid_to_timestamp(NULL) AS null_timestamp,
 uuid_to_timestamp_long(NULL) AS null_timestamp_long,
-uuid_to_unixtime(NULL) AS null_unixtime;
-null_timestamp	null_timestamp_long	null_unixtime
-NULL	NULL	NULL
+uuid_to_unixtime(NULL) AS null_unixtime,
+uuid_age(NULL) AS null_age,
+uuid_age_long(NULL) AS null_age_long;
+null_timestamp	null_timestamp_long	null_unixtime	null_age	null_age_long
+NULL	NULL	NULL	NULL	NULL
 SELECT uuid_to_timestamp(@uuid_v4) AS v4_timestamp,
 uuid_to_timestamp_long(@uuid_v4) AS v4_timestamp_long,
-uuid_to_unixtime(@uuid_v4) AS v4_unixtime;
-v4_timestamp	v4_timestamp_long	v4_unixtime
-NULL	NULL	NULL
+uuid_to_unixtime(@uuid_v4) AS v4_unixtime,
+uuid_age(@uuid_v4) AS v4_age,
+uuid_age_long(@uuid_v4) AS v4_age_long;
+v4_timestamp	v4_timestamp_long	v4_unixtime	v4_age	v4_age_long
+NULL	NULL	NULL	NULL	NULL
 SELECT uuid_to_timestamp('not-a-uuid');
 ERROR HY000: uuid_to_timestamp: not a valid UUID
 SELECT uuid_to_timestamp_long('not-a-uuid');
 ERROR HY000: uuid_to_timestamp: not a valid UUID
 SELECT uuid_to_unixtime('not-a-uuid');
 ERROR HY000: uuid_to_unixtime: not a valid UUID
+SELECT uuid_age('not-a-uuid');
+ERROR HY000: uuid_age: not a valid UUID
+SELECT uuid_age_long('not-a-uuid');
+ERROR HY000: uuid_age_long: not a valid UUID
 SET time_zone= @save_time_zone;
 UNINSTALL SONAME 'uuid_time';

@@ -29,13 +29,29 @@ SELECT uuid_to_timestamp_long(@uuid_v1) LIKE '%2020%' AS v1_long_year,
        uuid_to_timestamp_long(@uuid_v1) IS NOT NULL AS v1_long_not_null,
        uuid_to_timestamp_long(@uuid_v7) IS NOT NULL AS v7_long_not_null;
 
+SELECT uuid_age(@uuid_v1) IS NOT NULL AS v1_age,
+       uuid_age(@uuid_v7) IS NOT NULL AS v7_age,
+       uuid_age(@uuid_v4) AS v4_age;
+
+SELECT uuid_age_long(@uuid_v1) REGEXP
+         '^-?[0-9]+y [0-9]+mo [0-9]+d [0-9]+h [0-9]+m [0-9]+\\.[0-9]{3}s$'
+         AS v1_age_long_format,
+       uuid_age_long(@uuid_v7) REGEXP
+         '^-?[0-9]+y [0-9]+mo [0-9]+d [0-9]+h [0-9]+m [0-9]+\\.[0-9]{3}s$'
+         AS v7_age_long_format,
+       uuid_age_long(@uuid_v4) AS v4_age_long;
+
 SELECT uuid_to_timestamp(NULL) AS null_timestamp,
        uuid_to_timestamp_long(NULL) AS null_timestamp_long,
-       uuid_to_unixtime(NULL) AS null_unixtime;
+       uuid_to_unixtime(NULL) AS null_unixtime,
+       uuid_age(NULL) AS null_age,
+       uuid_age_long(NULL) AS null_age_long;
 
 SELECT uuid_to_timestamp(@uuid_v4) AS v4_timestamp,
        uuid_to_timestamp_long(@uuid_v4) AS v4_timestamp_long,
-       uuid_to_unixtime(@uuid_v4) AS v4_unixtime;
+       uuid_to_unixtime(@uuid_v4) AS v4_unixtime,
+       uuid_age(@uuid_v4) AS v4_age,
+       uuid_age_long(@uuid_v4) AS v4_age_long;
 
 --error ER_UNKNOWN_ERROR
 SELECT uuid_to_timestamp('not-a-uuid');
@@ -43,6 +59,10 @@ SELECT uuid_to_timestamp('not-a-uuid');
 SELECT uuid_to_timestamp_long('not-a-uuid');
 --error ER_UNKNOWN_ERROR
 SELECT uuid_to_unixtime('not-a-uuid');
+--error ER_UNKNOWN_ERROR
+SELECT uuid_age('not-a-uuid');
+--error ER_UNKNOWN_ERROR
+SELECT uuid_age_long('not-a-uuid');
 
 SET time_zone= @save_time_zone;
 

@@ -82,7 +82,8 @@ static bool is_valid_uuid_format_version(const std::string &str, char version)
   return str[14] == version;
 }
 
-bool uuid_to_unixtime(const std::string &uuid_str, uint64_t *out)
+bool uuid_to_unixms(const std::string &uuid_str, uint64_t *out,
+                    const char *func_name)
 {
   if (!out)
   {
@@ -92,7 +93,7 @@ bool uuid_to_unixtime(const std::string &uuid_str, uint64_t *out)
   uint64_t unix_ts= 0;
   if (!is_valid_uuid_format_any(uuid_str))
   {
-    my_printf_error(ER_UNKNOWN_ERROR, "uuid_to_unixtime: not a valid UUID", 0);
+    my_printf_error(ER_UNKNOWN_ERROR, "%s: not a valid UUID", 0, func_name);
     return false;
   }
 
@@ -125,7 +126,19 @@ bool uuid_to_unixtime(const std::string &uuid_str, uint64_t *out)
     return false;
   }
 
-  *out= unix_ts / 1000;
+  *out= unix_ts;
+  return true;
+}
+
+bool uuid_to_unixtime(const std::string &uuid_str, uint64_t *out)
+{
+  uint64_t unix_ms= 0;
+  if (!uuid_to_unixms(uuid_str, &unix_ms))
+  {
+    return false;
+  }
+
+  *out= unix_ms / 1000;
   return true;
 }
 

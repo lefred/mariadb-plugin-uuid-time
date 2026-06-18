@@ -46,6 +46,8 @@ std::string uuidv7_to_ts(uuid_t uuid, TimestampFormat format= TS_SHORT);
 int string_to_uuid(const std::string &str, uuid_t uuid);
 
 uint64_t uuid_to_unixts(const std::string &uuid_str);
+bool uuid_to_unixms(const std::string &uuid_str, uint64_t *out,
+                    const char *func_name= "uuid_to_unixtime");
 bool uuid_to_unixtime(const std::string &uuid_str, uint64_t *out);
 
 unsigned char hex_to_byte(char c);

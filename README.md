@@ -5,13 +5,15 @@
 MariaDB function plugin that extracts timestamps from UUID values when the
 timestamp is encoded in the UUID. It supports UUID version 1 and UUID version 7.
 
-The plugin provides three SQL functions:
+The plugin provides five SQL functions:
 
 | Function | Description |
 | --- | --- |
 | `uuid_to_timestamp(uuid)` | Returns the embedded timestamp as `YYYY-MM-DD HH:MM:SS.mmm` |
 | `uuid_to_timestamp_long(uuid)` | Returns the embedded timestamp in the server process locale/timezone format |
 | `uuid_to_unixtime(uuid)` | Returns the embedded timestamp as Unix time in seconds |
+| `uuid_age(uuid)` | Returns the age of the UUID timestamp in fractional seconds |
+| `uuid_age_long(uuid)` | Returns the age as `3y 3mo 12d 12h 21m 13.293s` |
 
 Valid UUIDs that do not contain a timestamp, such as UUIDv4 values, return
 `NULL`. Invalid UUID strings raise an error.
@@ -32,7 +34,7 @@ Install the plugin module in MariaDB:
 INSTALL SONAME 'uuid_time';
 ```
 
-Verify that the three function plugins are loaded:
+Verify that the five function plugins are loaded:
 
 ```sql
 SELECT plugin_name, plugin_type, plugin_library, plugin_description,
@@ -52,6 +54,8 @@ Expected functions:
 | uuid_to_timestamp      | FUNCTION    | uuid_time.so   | Function UUID_TO_TIMESTAMP()      | lefred        |
 | uuid_to_timestamp_long | FUNCTION    | uuid_time.so   | Function UUID_TO_TIMESTAMP_LONG() | lefred        |
 | uuid_to_unixtime       | FUNCTION    | uuid_time.so   | Function UUID_TO_UNIXTIME()       | lefred        |
+| uuid_age               | FUNCTION    | uuid_time.so   | Function UUID_AGE()               | lefred        |
+| uuid_age_long          | FUNCTION    | uuid_time.so   | Function UUID_AGE_LONG()          | lefred        |
 +------------------------+-------------+----------------+-----------------------------------+---------------+
 ```
 
@@ -169,6 +173,34 @@ SELECT FROM_UNIXTIME(
        ) AS uuid_v7_datetime;
 ```
 
+### `uuid_age()`
+
+Return the elapsed time since the UUID timestamp, in seconds:
+
+```sql
+SELECT uuid_age(UUID_v7());
+```
+
+The return value is fractional, so freshly generated UUIDv7 values can show
+sub-second ages.
+
+### `uuid_age_long()`
+
+Return the elapsed time since the UUID timestamp as a compact duration string:
+
+```sql
+SELECT uuid_age_long('0186c285-2890-79d1-a8f0-6229ba440ade');
+```
+
+Example format:
+
+```text
+3y 3mo 12d 12h 21m 13.293s
+```
+
+Years and months are calculated with UTC calendar arithmetic, so leap years and
+month lengths are reflected in the result.
+
 ## NULL and Error Behavior
 
 `NULL` input returns `NULL`:
@@ -176,7 +208,9 @@ SELECT FROM_UNIXTIME(
 ```sql
 SELECT uuid_to_timestamp(NULL),
        uuid_to_timestamp_long(NULL),
-       uuid_to_unixtime(NULL);
+       uuid_to_unixtime(NULL),
+       uuid_age(NULL),
+       uuid_age_long(NULL);
 ```
 
 Valid UUIDs without an embedded timestamp return `NULL`:
@@ -184,7 +218,9 @@ Valid UUIDs without an embedded timestamp return `NULL`:
 ```sql
 SELECT uuid_to_timestamp('f47ac10b-58cc-4372-a567-0e02b2c3d479') AS ts,
        uuid_to_timestamp_long('f47ac10b-58cc-4372-a567-0e02b2c3d479') AS ts_long,
-       uuid_to_unixtime('f47ac10b-58cc-4372-a567-0e02b2c3d479') AS unix_time;
+       uuid_to_unixtime('f47ac10b-58cc-4372-a567-0e02b2c3d479') AS unix_time,
+       uuid_age('f47ac10b-58cc-4372-a567-0e02b2c3d479') AS age,
+       uuid_age_long('f47ac10b-58cc-4372-a567-0e02b2c3d479') AS age_long;
 ```
 
 Result:
